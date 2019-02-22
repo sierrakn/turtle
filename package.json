@@ -99,6 +99,7 @@
     "typescript": "^3.0.1"
   },
   "dependencies": {
+    "@google-cloud/logging-bunyan": "^0.9.5",
     "async-retry": "^1.2.1",
     "aws-sdk": "^2.226.1",
     "bunyan": "^1.8.12",

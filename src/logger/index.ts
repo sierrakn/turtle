@@ -2,6 +2,9 @@ import bunyan from 'bunyan';
 import bunyanDebugStream from 'bunyan-debug-stream';
 import { SentryStream } from 'bunyan-sentry-stream';
 import { Client as RavenClient } from 'raven';
+// type error when using import
+// https://github.com/googleapis/nodejs-logging-bunyan/issues/241
+const { LoggingBunyan } = require('@google-cloud/logging-bunyan');
 
 import config from 'turtle/config';
 import * as constants from 'turtle/constants/logger';
@@ -54,8 +57,6 @@ if (config.logger.loggly.token) {
     // prettier-ignore
     tags: [
       'app-shell-apps',
-      `platform.${config.platform}`,
-      `environment.${config.deploymentEnv}`,
     ],
   };
   logglyStream = new HackyLogglyStream(logglyConfig);
@@ -65,9 +66,23 @@ if (config.logger.loggly.token) {
   });
 }
 
+if (config.google.credentials) {
+  const resource = {
+    type: 'generic_node',
+    labels: {
+      node_id: config.hostname,
+      location: '',
+      namespace: '',
+    }
+  };
+  streams.push(new LoggingBunyan({name: 'turtle', resource}).stream('info'));
+}
+
 const logger = bunyan.createLogger({
   name: 'turtle',
   level: config.logger.level,
+  platform: config.platform,
+  environment: config.deploymentEnv,
   streams,
 });
 
