@@ -9,7 +9,7 @@ import { createBuilderContext, IContext } from 'turtle/builders/ios/context';
 import buildSimulator from 'turtle/builders/ios/simulator';
 import { logErrorOnce } from 'turtle/builders/utils/common';
 import prepareAdHocBuildCredentials from 'turtle/builders/utils/ios/adhocBuild';
-import { uploadBuildToS3 } from 'turtle/builders/utils/uploader';
+import { uploadBuildToS3, uploadBuildToTestFlight } from 'turtle/builders/utils/uploader';
 import config from 'turtle/config';
 import { IOS, PLATFORMS } from 'turtle/constants/index';
 import { IJob, IJobResult } from 'turtle/job';
@@ -42,6 +42,11 @@ export default async function iosBuilder(job: IJob): Promise<IJobResult> {
       throw new Error(`Unsupported iOS build type: ${buildType}`);
     }
 
+    // Upload to app store
+    if (job.config.upload) {
+      const { options } = job.config.options;
+      await uploadBuildToTestFlight(ctx, options);
+    }
     const artifactUrl = await uploadBuildToS3(ctx);
     return { artifactUrl };
   } catch (err) {

@@ -18,6 +18,7 @@ export default async function buildArchive(ctx: IContext, job: IJob) {
     await keychain.importCert(ctx, { keychainPath: keychainInfo.path, certP12, certPassword });
     const manifest = await runShellAppBuilder(ctx, job);
     await buildAndSignIPA(ctx, job, keychainInfo.path, manifest);
+
   } catch (err) {
     logErrorOnce(err);
     throw err;
